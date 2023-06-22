@@ -8,6 +8,8 @@ This fork of PDIIIF is intended to be used for developing a customized coverpage
 2. `harvard-main` is the default branch, and is intended to keep commits dealing with Harvard specific changes out of `main`. Merge in `main` in order to pull in upstream changes and resolve any conflicts.
 3. Create a feature branch for new tickets using the Jira ticket ID. Once complete open a PR against `harvard-main`
 
+**When creating a PR make sure to change the base repository to "harvard-lts/pdiiif"**. [Lots of people make this mistake, and it isn't configurable yet](https://github.com/orgs/community/discussions/11729).
+
 ## The role of Docker in this project
 
 Seems like it's primarily to provide the back-end service locally _however_, the web app is also accessible via the same port (`http://localhost:8080`).
