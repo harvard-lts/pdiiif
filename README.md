@@ -1,3 +1,88 @@
+# Harvard PDIIIF fork
+
+This fork of PDIIIF is intended to be used for developing a customized coverpage API endpoint for use with PDIIIF. For all other uses of PDIIIF you should refer to [the main PDIIIF repository](https://github.com/jbaiter/pdiiif).
+
+## Branching strategy
+
+1. `main` is **locked** (read-only), but _can_ and **should** be used to synchronize with `jbaiter/pdiiif:main`. This will avoid incurring conflicts in directly in this shared branch.
+2. `harvard-main` is the default branch, and is intended to keep commits dealing with Harvard specific changes out of `main`. Merge in `main` in order to pull in upstream changes and resolve any conflicts.
+3. Create a feature branch for new tickets using the Jira ticket ID. Once complete open a PR against `harvard-main`
+
+## The role of Docker in this project
+
+Seems like it's primarily to provide the back-end service locally _however_, the web app is also accessible via the same port (`http://localhost:8080`).
+
+It's uncertain if it's best to work inside Docker or outside of Docker for local development. You'll find an outline of both scenarios below.
+
+## The role of pnpm
+
+As a [monorepo](https://monorepo.tools/) there are multiple packages / apps managed in this one repository. Pnpm is a drop in replacement for npm/yarn, and is a popular choice for monorepos because it's faster, more efficient and can work well with the monorepo architecture.
+
+You should be aware of it's existence, but most important that the `pnpm link` command was used to create symlinks to the `pdiiif-lib` directory. This means that although `pdiiif-web` appears to import from the `pdiiif` package in `node_modules`, it's actually linked to the compiled assets in the `pdiiif-lib` within this workspace.
+
+
+## Choosing to use docker for development (Easier to get started, harder developer experience)
+
+You should be able to follow the instructions in the [Quickstart](#quickstart) section to get things up and running.
+
+Docker offers a more consistent development experience by its nature, but there's a few hoops you may need to jump through with the current setup:
+
+1. There are no volumes defined out of the box. If you want to update a file on the host and see the change reflected in the container you'll need to run `docker cp <path to host file> pdiiif:<path to container file>`.
+2. In order to see changes reflected in the packages, you may need to do one or more of the following:
+    - If it's a code change in a source file you can shell into the container with `docker exec -it pdiiif bash` and use navigate to the appropriate package and use `pnpm build` compile the changes. You can also use the `-r` flag, e.g. `pnpm -r build` to build all the packages
+    - You might need to restart the container (I've found this to be necessary for updating `coverpage.hbs`) using `docker restart pdiiif`
+
+## Choosing not to use docker for development (Harder to get started, better developer experience)
+
+You'll want to make sure that your local node version matches the one in the Dockerfile. I recommend [Node Version Manager](https://github.com/nvm-sh/nvm).
+
+I recommend using pnpm and installing it globally.
+
+Recursively install all the package dependencies:
+
+`pnpm -r install`
+
+You'll need to build all three of the packages **in a specific order** (web and api depend on the dist assets of lib), paste this code:
+
+```
+pnpm -C pdiiif-lib run build && \
+pnpm -C pdiiif-api run build && \
+pnpm -C pdiiif-web run build
+```
+
+It should then be possible to update files in `pdiiif-lib`, `pdiiif-api`, and `pdiiif-web` on the host machine while using their respective npm scripts to compile the code.
+
+To view the results, you can start the local server and coverpage service by running:
+
+`pnpm -C pdiiif-api run start` 
+
+Which should start a local dev server running on port `31337`.
+
+If you have have problems with this initially as I did, see below.
+
+
+## Issues I've encountered
+
+### To run the `start` / `dev` scripts in `pdiiif-web` (this _might_ just be a linux thing)
+
+Update vite-plugin-mkcert to 1.13.3 . You may also need to create/delete/modify the permissions on a directory in your machines home directory. At first I had an error because it wasn't there, then one which suggested incorrect permissions, then finally deleting it again made it work. Go figure.
+
+### To have unobfuscated code in your browser inspector:
+
+You may need to add the following lines to the `tsconfig.cjs.json` in `pdiiif-lib`:
+
+```
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true
+```
+
+### To run the jest tests
+
+Tests currently fail to run both inside and outside of the container. We think this is a known issue...
+
+---
+
 [![pdiiif logo](pdiiif-web/assets/logo.svg)](https://pdiiif.jbaiter.de)
 
 [**Demo**](https://pdiiif.jbaiter.de)
@@ -38,7 +123,6 @@ valid ZIP files that contain the manifest and all of the images and OCR files,
 with almost no storage overhead. (thanks to [Ange Albertini](https://github.com/corkami)
 and his work on [Poc||GTFO](https://pocorgtfo.hacke.rs/) for the inspiration!)
 
-
 ## Features
 
 - [x] PDF Page for every single-image Canvas in a Manifest
@@ -51,7 +135,6 @@ and his work on [Poc||GTFO](https://pocorgtfo.hacke.rs/) for the inspiration!)
 - [x] Include IIIF Manifest and referenced OCR files as PDF attachments
 - [x] Generate polyglot PDFs that are also ZIP files of all resources
 
-
 ## Quickstart
 
 Besides using the public instance at https://pdiiif.jbaiter.de, you can also run the app yourself.
@@ -62,7 +145,6 @@ $ docker build . -t pdiiif
 # SYS_ADMIN capabilities are required (for Puppeteer's headless Chrome instance to generate cover page PDFs)
 $ docker run -p 8080:8080 --cap-add=SYS_ADMIN --name pdiiif pdiiif
 ```
-
 
 ## Cookbook Matrix
 
@@ -137,7 +219,7 @@ of the recipe support in pdiiif:
 - [`./pdiiif-lib`](https://github.com/jbaiter/pdiiif/tree/main/pdiiif-lib): Contains the library source code
 - [`./pdiiif-api`](https://github.com/jbaiter/pdiiif/tree/main/pdiiif-api): Small node.js server application that
   is responsible for generating the cover pages and that can be used as a fallback for browsers that don't support
-    the Native Filesystem API or service workers.
+  the Native Filesystem API or service workers.
 - [`./pdiiif-web`](https://github.com/jbaiter/pdiiif/tree/main/pdiiif-web): Sample web application (using Svelte)
   to demonstrate using pdiiif in the browser
 
@@ -155,6 +237,7 @@ If you want to customize the template that is being used, you can either host th
 template into the image at `/opt/pdiiif/pdiiif-api/dist/asses/coverpage.hbs`. For a list of available helpers that you can
 use, refer to [`handlebars-helpers`](https://github.com/helpers/handlebars-helpers#helpers). Also available are these two
 custom helpers:
+
 - `qrcode`, takes a value and an optional `{ width, height, padding, color, background, ecl }` options object and returns
   the value encoded as a SVG QR code image
 - `sanitize-html`, takes an arbitrary HTML string and sanitizes it according to the [IIIF HTML rules](https://iiif.io/api/presentation/3.0/#45-html-markup-in-property-values)
