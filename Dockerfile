@@ -45,10 +45,11 @@ RUN cd pdiiif-lib && \
     pnpm i && pnpm run build && \
     rm -rf ~/.pnpm-store
 
-ENV CFG_PORT 8080
+ENV CFG_PORT 23024
 ENV CFG_HOST 0.0.0.0
 
 EXPOSE ${CFG_PORT}
 
 WORKDIR /opt/pdiiif/pdiiif-api
+
 CMD ["node", "dist/server.js"]
