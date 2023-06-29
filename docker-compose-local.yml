@@ -9,9 +9,6 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    env_file: .env
-    volumes:
-      - './:/opt/pdiiif'
     ports:
       - "23024:8080"
     # Join this service to a custom docker network
