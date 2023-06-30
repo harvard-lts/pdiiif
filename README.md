@@ -148,6 +148,12 @@ $ docker build . -t pdiiif
 $ docker run -p 8080:8080 --cap-add=SYS_ADMIN --name pdiiif pdiiif
 ```
 
+To use the docker-compose-local.yml file:
+
+```
+docker-compose -f docker-compose-local.yml up -d --build --force-recreate
+```
+
 ## Cookbook Matrix
 
 The [IIIF Cookbook](https://iiif.io/api/cookbook/) has a matrix of "recipes" with viewer support, here's an overview
