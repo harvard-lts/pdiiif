@@ -43,7 +43,8 @@ RUN cd pdiiif-lib && \
     pnpm i && pnpm build && \
     cd ../pdiiif-api && \
     pnpm i && pnpm run build && \
-    rm -rf ~/.pnpm-store
+    rm -rf ~/.pnpm-store && \
+    chmod 755 healthcheck.cjs
 
 ENV CFG_PORT 8080
 ENV CFG_HOST 0.0.0.0
