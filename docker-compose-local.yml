@@ -1,0 +1,22 @@
+# Build all images and start all containers: `docker compose -f docker-compose-local.yml build --no-cache && docker compose -f docker-compose-local.yml up -d`
+# Start containers only: `docker compose -f docker-compose-local.yml up -d`
+# Stop and remove all containers: `docker compose -f docker-compose-local.yml down`
+
+version: '3.7'
+services:
+  app:
+    container_name: mps-pdiiif
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - "23024:8080"
+    # Join this service to a custom docker network
+    networks:
+      - mps-net
+
+  # Create a custom docker network if it does not exist already
+networks:
+  mps-net:
+    name: mps-net

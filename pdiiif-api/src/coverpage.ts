@@ -105,7 +105,7 @@ export class CoverPageGenerator {
     this.browser = await puppeteer.launch({
       product: 'chrome',
       headless: 'new',
-      args: ['--font-render-hinting=none', '--force-color-profile=srgb'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--font-render-hinting=none', '--force-color-profile=srgb'],
       executablePath: process.env.CFG_PUPPETEER_BROWSER_EXECUTABLE,
     });
     const tmpl = await fs.readFile(this.coverTemplatePath);
