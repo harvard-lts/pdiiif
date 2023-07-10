@@ -151,6 +151,11 @@ app.use(
 app.use('/docs', openApiMiddleware.swaggerui);
 app.use(express.json());
 
+// Routes
+app.use(['/healthcheck'], (req, res, next) => {
+  res.status(200).json({ "status": 200, "message": "mps-pdiiif" });
+});
+
 // Only allow access to Prometheus metrics endpoint from localhost
 app.use('/metrics', (req, res, next) => {
   if (req.ip === '127.0.0.1') {
