@@ -1,5 +1,5 @@
 #!groovy
-@Library('lts-basic-pipeline') _
+@Library('lts-basic-pipeline@forked-repo-pipeline') _
 
 // projName: The directory name for the project on the servers for it's docker/config files
 // intTestPort: Port of integration test container
