@@ -1,5 +1,7 @@
 # Harvard PDIIIF fork
 
+**We will no longer be relying on PDIIIF to create cover sheets for PDF downloads due to configurations of Puppeteer. This repository is archived. A new solution for cover pages will be referenced here when it is available.**
+
 This fork of PDIIIF is intended to be used for developing a customized coverpage API endpoint for use with PDIIIF. For all other uses of PDIIIF you should refer to [the main PDIIIF repository](https://github.com/jbaiter/pdiiif).
 
 ## Branching strategy
